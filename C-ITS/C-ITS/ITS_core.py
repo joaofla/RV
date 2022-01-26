@@ -77,7 +77,7 @@ def main(argv):
 	parser.add_argument('--OBU', action='store_const', const=2, help='Run as an OBU')
 
 	args = parser.parse_args()
-
+	print(args)
 	command=input('Press enter to start')
 	if (len(argv)<7):
 		print('ERROR: Missing arguments: node number pos_x pos_y speed direction heading')
@@ -86,10 +86,10 @@ def main(argv):
 		node_id = argv[1]
 		coordinates = {'x':int(argv[2]), 'y':int(argv[3]), 't': repr(time.time())}
 		obd_2_interface = {'speed': int(argv[4]), 'direction': argv[5], 'heading': argv[6], 'status': "0"}
-		if args[len(args)] == 1:
+		if args.RSU == 1:
 			# RSU
 			print('Starting RSU...')
-		elif args[len(args)] == 2:
+		elif args.OBU == 2:
 			# OBU
 			print('Starting OBU...')
 	threads=[]
