@@ -71,7 +71,7 @@ def main(argv):
 	parser.add_argument('coordinateY', nargs=1, type=int, help='y coordinate value')
 	parser.add_argument('velocity', nargs=1 , type=int, help='velocity value between 0 and 100')
 	parser.add_argument('direction', nargs=1, type=str, help='direction f/b')
-	parser.add_argument('heading', nargs=1, type=str, help='heading o/e/n/s')
+	parser.add_argument('heading', nargs=1, type=str, help='heading O/E/N/S')
 
 	parser.add_argument('--RSU', action='store_const', const=1, help='Run as a RSU')
 	parser.add_argument('--OBU', action='store_const', const=2, help='Run as an OBU')
