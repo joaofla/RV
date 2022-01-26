@@ -3,7 +3,7 @@ from socket import *
 import sys, time
 from threading import Thread, Event
 from Queue import *
-
+import argparse
 
 # PROTOCOL STACK - One folder per layer of VANET protocol stack. It may include more than one entity. Each entity is a different thread.
 # VANET protocol stack data link layer - multicast communication - basic emulation of logical and link layer communication.
@@ -65,6 +65,19 @@ obd_2_interface = dict()
 def main(argv):
 	global obd_2_interface, coordinates
 
+	parser = argparse.ArgumentParser(description='Process initialization.')
+	parser.add_argument('node', type=int, nargs=1, help='nodeID')
+	parser.add_argument('coordinateX', nargs=1 , type=int, help='x coordinate value')
+	parser.add_argument('coordinateY', nargs=1, type=int, help='y coordinate value')
+	parser.add_argument('velocity', nargs=1 , type=int, help='velocity value between 0 and 100')
+	parser.add_argument('direction', nargs=1, type=str, help='direction f/b')
+	parser.add_argument('heading', nargs=1, type=str, help='heading o/e/n/s')
+
+	parser.add_argument('--RSU', action='store_const', const=1, help='Run as a RSU')
+	parser.add_argument('--OBU', action='store_const', const=2, help='Run as an OBU')
+
+	args = parser.parse_args()
+
 	command=input('Press enter to start')
 	if (len(argv)<7):
 		print('ERROR: Missing arguments: node number pos_x pos_y speed direction heading')
@@ -73,7 +86,14 @@ def main(argv):
 		node_id = argv[1]
 		coordinates = {'x':int(argv[2]), 'y':int(argv[3]), 't': repr(time.time())}
 		obd_2_interface = {'speed': int(argv[4]), 'direction': argv[5], 'heading': argv[6], 'status': "0"}
+		if args[len(args)] == 1:
+			# RSU
+			print('Starting RSU...')
+		elif args[len(args)] == 2:
+			# OBU
+			print('Starting OBU...')
 	threads=[]
+
 
 	try:
 
