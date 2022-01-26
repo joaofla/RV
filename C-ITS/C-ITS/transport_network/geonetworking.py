@@ -22,7 +22,7 @@ lock_loc_table = threading.Lock()
 def geonetwork_txd(node, start_flag, geonetwork_txd_queue, multicast_txd_queue):
 
 	while not start_flag.isSet():
-		time.sleep (1)
+		time.sleep(1)
 	print('STATUS: Ready to start - THREAD: geonetwork_txd - NODE: {}\n'.format(node),'\n')
 
 	while True :
