@@ -138,7 +138,7 @@ def main(argv):
 		#     Facilities layer threads
 		##################################################
 
-		# Thread - ca_service_rxd: receive data from application_txd, generates cooperative awaraness and sends the CA message to the geonetwork_txd
+		# Thread - ca_service_txd: receive data from application_txd, generates cooperative awaraness and sends the CA message to the geonetwork_txd
 		# Arguments - coordinates: last known coordinates
 		#             ca_services_txd_queue: queue to get data from application_txd
 		#             geonetwork_txd_queue: queue to send data to geonetwork_txd
