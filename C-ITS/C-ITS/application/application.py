@@ -3,6 +3,7 @@
 # SENDING/RECEIVING APPLICATION THREADS - add your business logic here!
 ## Note: you can use a single thread, if you prefer, but be carefully when dealing with concurrency.
 #######################################################################################################
+from math import sqrt
 from socket import MsgFlag
 import time
 from application.message_handler import *
@@ -68,6 +69,27 @@ def application_rxd(node, start_flag, services_rxd_queue, my_system_rxd_queue):
 
 
 #-----------------------------------------------------------------------------------------
+# Side function to calculate time estimate
+#-----------------------------------------------------------------------------------------
+def time_estimate(client_route, velocity, stop_time, multiplier):
+	distance = 0
+	for i in len(client_route):
+		auxX = client_route[(i + 1)][0] - client_route[i][0]
+		auxY = client_route[(i + 1)][1] - client_route[i][1]
+		distance = sqrt(i[0][0])
+
+	time_spent=distance/velocity
+
+
+
+
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------
 # Thread: my_system - implements the business logic of your system. This is a very straightforward use case 
 # 			to illustrate how to use cooperation to control the vehicle speed. 
 # 			The assumption is that the vehicles are moving in the opposite direction, in the same lane.
@@ -83,6 +105,50 @@ def application_rxd(node, start_flag, services_rxd_queue, my_system_rxd_queue):
 #-----------------------------------------------------------------------------------------
 def my_system(node, start_flag, coordinates, obd_2_interface, my_system_rxd_queue, movement_control_txd_queue):
 
+	#RSU
+	#time estimate = time where tempo=distance/velocity and add 30s
+	# to each stop it makes during that trajectory
+	id_RSU=0
+	pos_RSU=(0,0) #mudar
+	list_known_OBU=[]#each element (id, rota, nº passageiros, capacidade de passageiros, posição, timestamp)
+	range_RSU=1
+
+    #OBU
+	id_OBU=0
+	route=[]
+	pos_ini=(0,0)
+	capacity=2
+	passengers=1
+	velocity=40 #static
+
+	# at the time static but could be used as a scaling factor according to certain zones
+	time_multiplier = 1.6
+	# time per stop
+	time_stop = 20
+
+
+
+
+
+	#Our Application
+	#Create map with time estimates for each cube in a map 1x10 linha horizontal
+
+	#to claculate the time estimate it is calculated the time register for each cube that is
+	#written in the map and it is multiplied by 1.75 in order to account for traffic that can
+	#happen durring the jorney, in the real world this multiplier should change according to the distance
+	#of the jorney as well as what kind of rounds would be taken
+
+	#the map can be change by the regional server in order to update the times spen in each point
+
+	# while
+	# Receive message if -> DEN BUS REQUEST and RSU
+	#Calculate what bus can be used and new route for that bus
+
+	#access the list of bus known
+
+
+	#Calculate time estimate
+
 	safety_emergency_distance = 20
 	safety_warning_distance = 50
 
@@ -97,7 +163,7 @@ def my_system(node, start_flag, coordinates, obd_2_interface, my_system_rxd_queu
 	while True :
 		msg_rxd=my_system_rxd_queue.get()
 		if (msg_rxd['msg_type']=='CA'):
-			nodes_distance=distance (coordinates, obd_2_interface, msg_rxd)
+			nodes_distance=distance(coordinates, obd_2_interface, msg_rxd)
 			print ('CA --- >   nodes_ distance ', nodes_distance)
 			if (nodes_distance < safety_emergency_distance):
 				print ('----------------STOP-------------------')
