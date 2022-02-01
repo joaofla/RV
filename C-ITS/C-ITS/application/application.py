@@ -79,20 +79,88 @@ def application_rxd(node, start_flag, services_rxd_queue, my_system_rxd_queue):
 #-----------------------------------------------------------------------------------------
 def time_estimate(client_route, velocity, stop_time, multiplier):
 	distance = 0
-	for i in len(client_route):
+	count_Stop = 0
+
+	for i in range(0,len(client_route)-1):
 		auxX = client_route[(i + 1)][0] - client_route[i][0]
 		auxY = client_route[(i + 1)][1] - client_route[i][1]
-		distance = sqrt(i[0][0])
+		aux = sqrt(auxX^2 + auxY^2)
+		distance += aux
+		count_Stop += 1
 
-	time_spent=distance/velocity
+	time_spent = distance/velocity
+
+	total_time = time_spent + count_Stop*stop_time
+	margin = multiplier*(time_spent + count_Stop*stop_time)-(time_spent + count_Stop*stop_time)
+
+
+	return total_time, margin
+
+#-----------------------------------------------------------------------------------------
+# Side function to calculate new route
+#-----------------------------------------------------------------------------------------
+def route_calculation(old_route, new_client_pos, new_client_destin):
+
+
+	return total_time
+
+
+# -----------------------------------------------------------------------------------------
+# Side function to choose bus
+# -----------------------------------------------------------------------------------------
+def choose_bus(list_Bus, new_client_pos, new_client_destin, velocity, multiplier, stop_time):
+	list_possible_bus=[]
+	#verifies if the destiny is inside the area of the route
 
 
 
+	for i in range(0,len(list_Bus)-1):
+		# calculate area
+		maxX = 0
+		maxY = 0
+		minX = 0
+		minY = 0
+		for f in range(0,list_Bus[i][5]): #verify each value in a route
+			if list_Bus[i][5][f][0] > maxX:
+				maxX = list_Bus[i][5][f][0]
+
+			if list_Bus[i][5][f][0] < minX:
+				minX = list_Bus[i][5][f][0]
+
+			if list_Bus[i][5][f][1] > maxY:
+				maxY = list_Bus[i][5][f][1]
+
+			if list_Bus[i][5][f][1] < minY:
+				minY = list_Bus[i][5][f][1]
+		#verify if destiny is in the area
+		if new_client_destin[0]<= maxX and new_client_destin[0] >= minX:
+			if new_client_destin[1] <= maxY and new_client_destin[1] >= minY:
+				if new_client_pos[0] <= maxX and new_client_pos[0] >= minX:
+					if new_client_pos[1] <= maxY and new_client_pos[1] >= minY:
+						list_possible_bus.append(list_Bus[i])
+
+	new_list=[]
+	#verify if the route direction is the same as the client
+	for i in range(0,len(list_possible_bus)-1):
+		len1 = len(list_possible_bus[i][5])
+		bus_vector = (list_possible_bus[i][5][len1 - 1][0] - list_possible_bus[i][5][0][0],
+		list_possible_bus[i][5][len1 - 1][1]-list_possible_bus[i][5][0][1])
+
+		client_vector = (new_client_destin[0]-new_client_pos[0],
+						 new_client_destin[1]-new_client_pos)
+
+		if bus_vector[0]*client_vector[0] > 0 and bus_vector[1]*client_vector[1] > 0:
+			new_list.append(list_possible_bus[i])
+
+	#verify time constraints steal apply
+	new_route = route_calculation(new_list[0])#TODO falta os argumentos
+	total_time,margin= time_estimate(new_route, velocity, stop_time, multiplier)
+	if margin > (stop_time*3):
+		return # TODO
 
 
 
-
-
+	return new_list[] #TODO
 
 
 #-----------------------------------------------------------------------------------------
