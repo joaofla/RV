@@ -79,6 +79,7 @@ def application_rxd(node, start_flag, services_rxd_queue, my_system_rxd_queue):
 # Side function to calculate time estimate
 #-----------------------------------------------------------------------------------------
 def time_estimate(client_route, velocity, stop_time, multiplier):
+	real_velocity= 0.364 #m/s
 	distance = 0
 	count_Stop = 0
 
