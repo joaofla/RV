@@ -9,6 +9,7 @@ import time
 from application.message_handler import *
 from application.self_driving_test import *
 from in_vehicle_network.location_functions import position_read
+from in_vehicle_network.car_motor_functions import *
 
 
 
@@ -41,7 +42,7 @@ def application_txd(node, node_type, start_flag, my_system_rxd_queue, ca_service
 			i=i+1
 			den_user_data = trigger_event(node)
 			print('STATUS: Message from user - THREAD: application_txd - NODE: {}'.format(node),' - MSG: {}'.format(den_user_data ),'\n')
-			# TODO: add route calculation here
+			# TODO: add route calculation here - origem destino tempoEmSegundos - bus route newEstimate
 			den_service_txd_queue.put(den_user_data)
 		else:
 			den_service_txd_queue.put(my_system_txd_queue.get())
@@ -108,7 +109,8 @@ def route_calculation(old_route, new_client_pos, new_client_destin):
 # -----------------------------------------------------------------------------------------
 # Side function to choose bus
 # -----------------------------------------------------------------------------------------
-def choose_bus(list_Bus, new_client_pos, new_client_destin, velocity, multiplier, stop_time):
+def choose_bus(list_Bus, new_client_pos, new_client_destin):
+	multiplier,stop_time,velocity=1.6,20,40#TODO Duvida onde colocar velocidade
 	list_possible_bus=[]
 	#verifies if the destiny is inside the area of the route
 
@@ -153,12 +155,13 @@ def choose_bus(list_Bus, new_client_pos, new_client_destin, velocity, multiplier
 			new_list.append(list_possible_bus[i])
 
 	#verify time constraints steal apply
+
 	new_route = route_calculation(new_list[0])#TODO falta os argumentos
 	total_time,margin= time_estimate(new_route, velocity, stop_time, multiplier)
 	if margin > (stop_time*3):
 		return # TODO
 
-
+	# create new route to be sent
 
 	return new_list[] #TODO
 
@@ -178,6 +181,9 @@ def choose_bus(list_Bus, new_client_pos, new_client_destin, velocity, multiplier
 # 				Do not forget to this also at IST_core.py
 #-----------------------------------------------------------------------------------------
 def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_system_rxd_queue, movement_control_txd_queue, my_system_txd_queue, obu_list):
+
+	#TODO input test data
+	#TODO de acordo se é OBU e RSU
 
 	#RSU
 	#time estimate = time where tempo=distance/velocity and add 30s
@@ -200,39 +206,15 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
 	time_stop = 20
 
 
-
-
-
-	#Our Application
-	#Create map with time estimates for each cube in a map 1x10 linha horizontal
-
-	#to calculate the time estimate it is calculated the time register for each cube that is
-	#written in the map and it is multiplied by 1.75 in order to account for traffic that can
-	#happen durring the jorney, in the real world this multiplier should change according to the distance
-	#of the jorney as well as what kind of rounds would be taken
-
-	#the map can be change by the regional server in order to update the times spen in each point
-
-	# while
-	# Receive message if -> DEN BUS REQUEST and RSU
-	#Calculate what bus can be used and new route for that bus
-
-	#access the list of bus known
-
-
 	#Calculate time estimate
-
-	safety_emergency_distance = 20
-	safety_warning_distance = 50
 
 	while not start_flag.isSet():
 		time.sleep (1)
 	print('STATUS: Ready to start - THREAD: my_system - NODE: {}'.format(node),'\n')
 
-	enter_car(movement_control_txd_queue)
-	turn_on_car(movement_control_txd_queue)
-	car_move_forward(movement_control_txd_queue)
-	
+	#TODO if BUS start executing route
+	#TODO flag -t for testing without starting the route
+
 	while True :
 		update_obu_list(obu_list)
 		msg_rxd=my_system_rxd_queue.get()
@@ -249,6 +231,7 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
 					# RSU treating received DEN from OBU
 					if msg_rxd['status'] == 'Success':
 						print('Bus will pick you up')
+						#TODO estimativa de tempo
 					else:
 						print('No available bus. Please try again.')
 				elif node_type == "OBU":
@@ -257,10 +240,29 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
 						route = msg_rxd['route']
 						my_system_txd_queue.put(car_ack_route_ch(msg_rxd))
 
+
 			
 
 	return
 
+
+# Our Application
+# Create map with time estimates for each cube in a map 1x10 linha horizontal
+	enter_car(movement_control_txd_queue)
+	turn_on_car(movement_control_txd_queue)
+	car_move_forward(movement_control_txd_queue)
+# to calculate the time estimate it is calculated the time register for each cube that is
+# written in the map and it is multiplied by 1.75 in order to account for traffic that can
+# happen durring the jorney, in the real world this multiplier should change according to the distance
+# of the jorney as well as what kind of rounds would be taken
+
+# the map can be change by the regional server in order to update the times spen in each point
+
+# while
+# Receive message if -> DEN BUS REQUEST and RSU
+# Calculate what bus can be used and new route for that bus
+
+# access the list of bus known
 
 def update_obu_list(obu_list):
     new_list = []

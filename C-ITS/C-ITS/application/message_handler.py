@@ -26,11 +26,13 @@ def trigger_ca(node):
 
 def trigger_event(node):
 	event_type = "bus_request"
+	event_src_x = input(' DEN message - Source x > ')
+	event_src_y = input(' DEN message - Source y > ')
 	event_dest_x = input(' DEN message - Destination x > ')
 	event_dest_y = input(' DEN message - Destination y > ')
 	event_arrival_max_secs = input(' DEN message - Max arrival time (seconds) > ')
 	event_id = input(' DEN message - Event identifier >   ')
-	event_msg = {'event_type': event_type,'event_dest_x': event_dest_x, 'event_dest_y': event_dest_y, 'event_arrival_max_secs': event_arrival_max_secs, 'event_id' : event_id }
+	event_msg = {'event_type': event_type,'event_src_x': event_src_x, 'event_src_y': event_src_y,'event_dest_x': event_dest_x, 'event_dest_y': event_dest_y, 'event_arrival_max_secs': event_arrival_max_secs, 'event_id' : event_id }
 	return event_msg
 
 #------------------------------------------------------------------------------------------------

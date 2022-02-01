@@ -27,7 +27,7 @@ STOP = "2"
 MOVE = "3"
 
 #speed variation 
-delta_speed = 10
+delta_speed = 40
 
 
 #################################################
@@ -171,7 +171,7 @@ def vehicle_var_speed(speed, var_speed, pwm_control):
 
     print ('vehicle_var_speed')
     new_speed = speed + var_speed
-    if new_speed < 0 or new_speed >100:
+    if new_speed < 0 or new_speed >40:
         return speed
     change_speed(new_speed, pwm_control)
 
