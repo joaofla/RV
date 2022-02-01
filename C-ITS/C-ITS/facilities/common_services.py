@@ -9,7 +9,7 @@ from facilities.services import *
 #------------------------------------------------------------------------------------------------
 # Thread - ca_service_txd - periodical transmission of CA messages.
 #------------------------------------------------------------------------------------------------
-def ca_service_txd(node, node_type, start_flag, coordinates, obd_2_interface, ca_service_txd_queue, geonetwork_txd_queue):
+def ca_service_txd(node, node_type, start_flag, coordinates, obd_2_interface, ca_service_txd_queue, geonetwork_txd_queue, obu_list):
 
 	while not start_flag.isSet():
 		time.sleep (1)
@@ -19,7 +19,7 @@ def ca_service_txd(node, node_type, start_flag, coordinates, obd_2_interface, ca
 	msg_id =0
 	generation_time=ca_service_txd_queue.get()
 	while True :
-		ca_msg_txd = create_ca_message(node, node_type, msg_id, coordinates, obd_2_interface)
+		ca_msg_txd = create_ca_message(node, node_type, msg_id, coordinates, obd_2_interface, obu_list)
 #		print('STATUS: Message from user - THREAD: ca_service_txd - NODE: {}'.format(node),' - MSG: {}'.format(ca_msg_txd),'\n')
 		geonetwork_txd_queue.put(ca_msg_txd)
 		msg_id=msg_id+1

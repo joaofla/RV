@@ -194,3 +194,6 @@ def set_vehicle_info(obd_2_interface, speed, direction, status):
     obd_2_interface['direction']=direction
     obd_2_interface['status']=status
     return
+
+def car_ack_route_ch(msg_rxd, status):
+    return {'dest_rsu':msg_rxd['node'], 'status':status}

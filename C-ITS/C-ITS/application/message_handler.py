@@ -25,19 +25,12 @@ def trigger_ca(node):
 #-------------------------------------------------------------------------------------------------
 
 def trigger_event(node):
-	trigger_node = input(' CA message - node id >   ')
-	if trigger_node != node:
-		return
-	event_type = input(' DEN message - Event type >   ')
-	event_status = input(' DEN message - Event status (start | update | stop) >   ')
+	event_type = "bus_request"
+	event_dest_x = input(' DEN message - Destination x > ')
+	event_dest_y = input(' DEN message - Destination y > ')
+	event_arrival_max_secs = input(' DEN message - Max arrival time (seconds) > ')
 	event_id = input(' DEN message - Event identifier >   ')
-	if event_status == 'start':
-		rep_interval = input(' DEN message - repetition interval (0 if single event) >   ')
-		n_hops = input(' DEN message - Maximum hop number >   ')
-		roi_x = input(' DEN message - ROI x coordinates (0 if none)>   ')
-		roi_y = input(' DEN message - ROI y coordinates (0 if none) >   ')
-		latency = input(' DEN message - maximum latency >   ')
-	event_msg = {'event_type': event_type, 'event_status': event_status, 'event_id': int(event_id), 'rep_interval': int(rep_interval), 'n_hops': int(n_hops), 'roi_x': int(roi_x), 'roi_y': int(roi_y), 'latency': int(latency)}
+	event_msg = {'event_type': event_type,'event_dest_x': event_dest_x, 'event_dest_y': event_dest_y, 'event_arrival_max_secs': event_arrival_max_secs, 'event_id' : event_id }
 	return event_msg
 
 #------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@ from rsu_legacy_systems.rsu_control import *
 # QUEUES - used to tranfer messages between adjacent layers of the protocol stack
 my_system_rxd_queue=Queue()
 movement_control_txd_queue=Queue()
+my_system_txd_queue=Queue()
 
 ca_service_txd_queue=Queue()
 den_service_txd_queue=Queue()
@@ -63,7 +64,12 @@ obd_2_interface = dict()
 ## MAIN-ITS_core
 ##################################################
 def main(argv):
-	global obd_2_interface, coordinates
+	global obd_2_interface, coordinates, obu_list
+
+	##
+	# OBU list item format:
+	# (obu id, x, y, time, originating rsu, route ,time of expiration)
+	##
 
 	parser = argparse.ArgumentParser(description='Process initialization.')
 	parser.add_argument('node', type=int, nargs=1, help='nodeID')
@@ -86,6 +92,8 @@ def main(argv):
 		node_id = argv[1]
 		coordinates = {'x':int(argv[2]), 'y':int(argv[3]), 't': repr(time.time())}
 		obd_2_interface = {'speed': int(argv[4]), 'direction': argv[5], 'heading': argv[6], 'status': "0"}
+		obu_list = []
+		node_type = "RSU" if args.RSU == 1 else "OBU"
 		if args.RSU == 1:
 			# RSU
 			print('Starting RSU...')
@@ -107,7 +115,7 @@ def main(argv):
 		#     Application layer threads
 		##################################################
 
-		# Thread - application_txd: receive data from user/cars/legacy systems
+		# Thread - application_txd: send data from user/cars/legacy systems
 		# Arguments - coordinates: last known coordinates
 		#             my_system_rxd_queue: queue to send data to my_system that is relevant for business logic decision-process 
 		# 			  ca_service_txd_queue: queue to send data to ca_services_txd
@@ -129,7 +137,8 @@ def main(argv):
 		# Thread - my_system: business logic 
 		# Arguments - my_system_rxd_queue: queue to receive data from other application layer threads relevant for business logic decision-process 
 		#           - movement_control_txd_queue: queue to send commands to control vehicles movement
-		t=Thread(target=my_system, args=(node_id, start_flag, coordinates, obd_2_interface, my_system_rxd_queue, movement_control_txd_queue,))
+		#			- my_system_txd_queue: queue to send data to other application layer threads
+		t=Thread(target=my_system, args=(node_id, start_flag, coordinates, obd_2_interface, my_system_rxd_queue, movement_control_txd_queue, my_system_txd_queue))
 		t.start()
 		threads.append(t)
 	
@@ -142,7 +151,7 @@ def main(argv):
 		# Arguments - coordinates: last known coordinates
 		#             ca_services_txd_queue: queue to get data from application_txd
 		#             geonetwork_txd_queue: queue to send data to geonetwork_txd
-		t=Thread(target=ca_service_txd, args=(node_id, start_flag, coordinates, obd_2_interface, ca_service_txd_queue, geonetwork_txd_queue,))
+		t=Thread(target=ca_service_txd, args=(node_id, node_type, start_flag, coordinates, obd_2_interface, ca_service_txd_queue, geonetwork_txd_queue,))
 		t.start()
 		threads.append(t)
 
@@ -157,7 +166,7 @@ def main(argv):
 		# Arguments - coordinates: last known coordinates
 		#             den_services_txd_queue: queue to get data from application_txd
 		# #           geonetwork_txd_queue: queue to send data to geonetwork_txd
-		t=Thread(target=den_service_txd, args=(node_id, start_flag, coordinates, obd_2_interface, den_service_txd_queue, geonetwork_txd_queue,))
+		t=Thread(target=den_service_txd, args=(node_id, node_type, start_flag, coordinates, obd_2_interface, den_service_txd_queue, geonetwork_txd_queue,))
 		t.start()
 		threads.append(t)
 
