@@ -26,7 +26,7 @@ warm_up_time = 10
 # 			  ii)  user interface is useful to allow the user to control your system execution.
 # -----------------------------------------------------------------------------------------
 def application_txd(node, node_type, start_flag, my_system_rxd_queue, ca_service_txd_queue, den_service_txd_queue,
-                    my_system_txd_queue):
+                    my_system_txd_queue, obu_list):
     while not start_flag.isSet():
         time.sleep(1)
     print('STATUS: Ready to start - THREAD: application_txd - NODE: {}'.format(node), '\n')

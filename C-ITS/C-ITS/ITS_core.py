@@ -120,7 +120,7 @@ def main(argv):
 		#             my_system_rxd_queue: queue to send data to my_system that is relevant for business logic decision-process 
 		# 			  ca_service_txd_queue: queue to send data to ca_services_txd
 		#             den_service_txd_queue: queue to send data to den_services_txd
-		t=Thread(target=application_txd, args=(node_id, start_flag, my_system_rxd_queue, ca_service_txd_queue, den_service_txd_queue,))
+		t=Thread(target=application_txd, args=(node_id, start_flag, my_system_rxd_queue, ca_service_txd_queue, den_service_txd_queue, my_system_txd_queue, obu_list,))
 		t.start()
 		threads.append(t)
 	
