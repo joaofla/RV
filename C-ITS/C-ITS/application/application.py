@@ -42,7 +42,12 @@ def application_txd(node, node_type, start_flag, my_system_rxd_queue, ca_service
             den_user_data = trigger_event(node)
             print('STATUS: Message from user - THREAD: application_txd - NODE: {}'.format(node),
                   ' - MSG: {}'.format(den_user_data), '\n')
-            # TODO: add route calculation here - origem destino tempoEmSegundos - bus route newEstimate \list_Bus, new_client_pos, new_client_destin
+            # TODO: add route calculation here - origem destino tempoEmSegundos - bus route newEstimate
+            # TODO: it returns 0,[],0 if it does not find any
+            bus_id,new_route,estimate = choose_bus(obu_list, (den_user_data['event_src_x'],den_user_data['event_src_y']),
+                       (den_user_data['event_dest_x'],den_user_data['event_dest_y']),
+                       den_user_data['event_arrival_max_secs'])
+            # TODO: this function should be used for something
 
             den_service_txd_queue.put(den_user_data)
         else:
@@ -117,7 +122,7 @@ def route_calculation(old_route, new_client_src, new_client_dest):
 # -----------------------------------------------------------------------------------------
 # Side function to choose bus
 # -----------------------------------------------------------------------------------------
-def choose_bus(list_Bus, new_client_src, new_client_destin):
+def choose_bus(list_Bus, new_client_src, new_client_destin, time_request):
     multiplier, stop_time = 1.6, 20
 
     # verifies if the destiny is inside the area of the route
@@ -125,15 +130,32 @@ def choose_bus(list_Bus, new_client_src, new_client_destin):
 
     # verify if the route direction is the same as the client
     new_list = verify_direction(list_possible_bus, new_client_destin, new_client_src)
+    #TODO verify capacity
 
     # verify time constraints steal apply
     # create new route to be sent
     new_route = route_calculation(new_list[0]['route'], new_client_src, new_client_destin)
-    total_time, margin = time_estimate(new_route, stop_time, multiplier)
-    if margin > (stop_time * 3):
-        return new_route
+    client_route = create_client_route(new_client_destin, new_client_src, new_route)
+    total_time, margin = time_estimate(client_route, stop_time, multiplier)#time estimate for client route
+    if (total_time+margin) > time_request:
+        return 0,[],0
+    else:
+        return new_list[0]['obu_id'],new_route,total_time+margin
 
-    return []
+
+def create_client_route(new_client_destin, new_client_src, new_route):
+    client_route = []
+    found = False
+    for i in range(0, len(new_route)):
+        if new_route[i] == new_client_src:
+            client_route.append(new_route[i])
+            found = True
+        elif new_route[i] == new_client_destin:
+            client_route.append(new_route[i])
+            return client_route
+        elif found:
+            client_route.append(new_route[i])
+    return client_route
 
 
 def verify_direction(list_possible_bus, new_client_destin, new_client_pos):
