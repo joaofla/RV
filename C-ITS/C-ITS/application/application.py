@@ -125,10 +125,10 @@ def choose_bus(list_Bus, new_client_src, new_client_destin, time_request):
 
     # verifies if the destiny is inside the area of the route
     list_possible_bus = verify_area(list_Bus, new_client_destin, new_client_src)
+    print('List of bus considered:')
     print(list_possible_bus)
     # verify if the route direction is the same as the client
     new_list = verify_direction(list_possible_bus, new_client_destin, new_client_src)
-    #TODO verify capacity
 
     # verify time constraints steal apply
     # create new route to be sent
@@ -136,10 +136,12 @@ def choose_bus(list_Bus, new_client_src, new_client_destin, time_request):
         new_route = route_calculation(new_list[0]['route'], new_client_src, new_client_destin)
         client_route = create_client_route(new_client_destin, new_client_src, new_route)
         total_time, margin = time_estimate(client_route, stop_time, multiplier)#time estimate for client route
-    if (total_time+margin) > time_request:
-        return 0,[],0
+        if (total_time+margin) > time_request:
+            return 0,[],0
+        else:
+            return new_list[0]['obu_id'],new_route,total_time+margin
     else:
-        return new_list[0]['obu_id'],new_route,total_time+margin
+        return 0, [], 0
 
 
 def create_client_route(new_client_destin, new_client_src, new_route):
