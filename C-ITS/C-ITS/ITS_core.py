@@ -110,7 +110,7 @@ def main(argv):
 			route = [(0, 0), (4, 0)]
 		elif args.C2 == 2:
 			# C2
-			print('Initializing with C2 and Route((0,0),(4,0))')
+			print('Initializing with C2 and Route((3,0),(0,0))')
 			route = [(3, 0), (0, 0)]
 
 	threads=[]
