@@ -21,7 +21,7 @@ def ca_service_txd(node, node_type, start_flag, coordinates, obd_2_interface, ca
 	if node_type == 'OBU':
 		while True :
 			ca_msg_txd = create_ca_message(node, node_type, msg_id, coordinates, obd_2_interface, obu_list,route)
-	#		print('STATUS: Message from user - THREAD: ca_service_txd - NODE: {}'.format(node),' - MSG: {}'.format(ca_msg_txd),'\n')
+			print('STATUS: Message from user - THREAD: ca_service_txd - NODE: {}'.format(node),' - MSG: {}'.format(ca_msg_txd),'\n')
 			geonetwork_txd_queue.put(ca_msg_txd)
 			msg_id=msg_id+1
 			time.sleep(generation_time)

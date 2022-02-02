@@ -82,6 +82,9 @@ def main(argv):
 	parser.add_argument('--RSU', action='store_const', const=1, help='Run as a RSU')
 	parser.add_argument('--OBU', action='store_const', const=2, help='Run as an OBU')
 
+	parser.add_argument('--C1', action='store_const', const=1, help='C1 Route')
+	parser.add_argument('--C2', action='store_const', const=2, help='C2 Route')
+
 	args = parser.parse_args()
 	print(args)
 	command=input('Press enter to start')
@@ -101,6 +104,15 @@ def main(argv):
 		elif args.OBU == 2:
 			# OBU
 			print('Starting OBU...')
+		if args.C1 == 1:
+			# C1
+			print('Initializing with C1 and Route((0,0),(4,0))')
+			route = [(0, 0), (4, 0)]
+		elif args.C2 == 2:
+			# C2
+			print('Initializing with C2 and Route((0,0),(4,0))')
+			route = [(3, 0), (0, 0)]
+
 	threads=[]
 
 

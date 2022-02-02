@@ -46,8 +46,10 @@ def application_txd(node, node_type, start_flag, my_system_rxd_queue, ca_service
                        (den_user_data['event_dest_x'],den_user_data['event_dest_y']),
                        den_user_data['event_arrival_max_secs'])
             event = {'node_id':bus_id, 'route':new_route, 'estimate': estimate}
-
-            den_service_txd_queue.put(event)
+            if bus_id==0 and len(new_route)==0 and estimate==0:
+                print('No available routes!')
+            else:
+                den_service_txd_queue.put(event)
         else:
             den_service_txd_queue.put(my_system_txd_queue.get())
 
@@ -85,8 +87,8 @@ def time_estimate(client_route, stop_time, multiplier):
     count_Stop = 0
 
     for i in range(0, len(client_route) - 1):
-        auxX = client_route[(i + 1)][0] - client_route[i][0]
-        auxY = client_route[(i + 1)][1] - client_route[i][1]
+        auxX = int(client_route[(i + 1)][0]) - int(client_route[i][0])
+        auxY = int(client_route[(i + 1)][1]) - int(client_route[i][1])
         aux = sqrt(auxX ^ 2 + auxY ^ 2)
         distance += aux
         count_Stop += 1
@@ -106,10 +108,10 @@ def route_calculation(old_route, new_client_src, new_client_dest):
     new_route = []
     for i in range(0, len(old_route)):  # considering that only goes forward in one direction
         if new_client_src not in new_route:
-            if old_route[i][0] >= new_client_src[0] and old_route[i][1] >= new_client_src[1]:
+            if old_route[i][0] >= int(new_client_src[0]) and old_route[i][1] >= int(new_client_src[1]):
                 new_route.append(new_client_src)
         if new_client_dest not in new_route:
-            if old_route[i][0] >= new_client_dest[0] and old_route[i][1] >= new_client_dest[1]:
+            if old_route[i][0] >= int(new_client_dest[0]) and old_route[i][1] >= int(new_client_dest[1]):
                 new_route.append(new_client_dest)
         if old_route[i] not in new_route:
             new_route.append(old_route[i])
@@ -120,13 +122,16 @@ def route_calculation(old_route, new_client_src, new_client_dest):
 # -----------------------------------------------------------------------------------------
 # Side function to choose bus
 # -----------------------------------------------------------------------------------------
-def choose_bus(list_Bus, new_client_src, new_client_destin, time_request):
+def choose_bus(list_Bus, src, destin, time_request):
+    new_client_src=[int(src[0]),int(src[1])]
+    new_client_destin=[int(destin[0]),int(destin[1])]
+
     multiplier, stop_time = 1.6, 20
 
     # verifies if the destiny is inside the area of the route
     list_possible_bus = verify_area(list_Bus, new_client_destin, new_client_src)
-    print('List of bus considered:')
-    print(list_possible_bus)
+
+
     # verify if the route direction is the same as the client
     new_list = verify_direction(list_possible_bus, new_client_destin, new_client_src)
 
@@ -136,9 +141,10 @@ def choose_bus(list_Bus, new_client_src, new_client_destin, time_request):
         new_route = route_calculation(new_list[0]['route'], new_client_src, new_client_destin)
         client_route = create_client_route(new_client_destin, new_client_src, new_route)
         total_time, margin = time_estimate(client_route, stop_time, multiplier)#time estimate for client route
-        if (total_time+margin) > time_request:
+        if (total_time+margin) > int(time_request):
             return 0,[],0
         else:
+            print(new_route)
             return new_list[0]['obu_id'],new_route,total_time+margin
     else:
         return 0, [], 0
@@ -163,21 +169,19 @@ def verify_direction(list_possible_bus, new_client_destin, new_client_pos):
     new_list = []
 
     for i in range(0, len(list_possible_bus)):
-        len1 = len(list_possible_bus[i]['route'])
-        bus_vector = (list_possible_bus[i]['route'][len1 - 1][0] - list_possible_bus[i]['route'][0][0],
-                      list_possible_bus[i]['route'][len1 - 1][1] - list_possible_bus[i]['route'][0][1])
+        bus_vector = (list_possible_bus[i]['route'][-1][0] - list_possible_bus[i]['route'][0][0],
+                      list_possible_bus[i]['route'][-1][1] - list_possible_bus[i]['route'][0][1])
 
-        client_vector = (new_client_destin[0] - new_client_pos[0],
-                         new_client_destin[1] - new_client_pos[1])
-
-        if bus_vector[0] * client_vector[0] > 0 and bus_vector[1] * client_vector[1] > 0:
+        client_vector = (int(new_client_destin[0]) - int(new_client_pos[0]),
+                         int(new_client_destin[1]) - int(new_client_pos[1]))
+        if bus_vector[0] * client_vector[0] >= 0 and bus_vector[1] * client_vector[1] >= 0:
             new_list.append(list_possible_bus[i])
     return new_list
 
 
 def verify_area(list_Bus, new_client_destin, new_client_pos):
     list_possible_bus = []
-    for i in range(0, len(list_Bus) - 1):
+    for i in range(0, len(list_Bus)):
         # calculate area
         maxX = 0
         maxY = 0
@@ -192,11 +196,12 @@ def verify_area(list_Bus, new_client_destin, new_client_pos):
                 maxY = list_Bus[i]['route'][f][1]
             if list_Bus[i]['route'][f][1] < minY:
                 minY = list_Bus[i]['route'][f][1]
+
         # verify if destiny is in the area
-        if new_client_destin[0] <= maxX and new_client_destin[0] >= minX:
-            if new_client_destin[1] <= maxY and new_client_destin[1] >= minY:
-                if new_client_pos[0] <= maxX and new_client_pos[0] >= minX:
-                    if new_client_pos[1] <= maxY and new_client_pos[1] >= minY:
+        if int(new_client_destin[0]) <= maxX and int(new_client_destin[0]) >= minX:
+            if int(new_client_destin[1]) <= maxY and int(new_client_destin[1]) >= minY:
+                if int(new_client_pos[0]) <= maxX and int(new_client_pos[0]) >= minX:
+                    if int(new_client_pos[1]) <= maxY and int(new_client_pos[1]) >= minY:
                         list_possible_bus.append(list_Bus[i])
     return list_possible_bus
 
@@ -247,14 +252,17 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
 
     # TODO if BUS start executing route
     # TODO flag -t for testing without starting the route
-
+    if node_type=='OBU':
+        enter_car(movement_control_txd_queue)
+        turn_on_car(movement_control_txd_queue)
+        stop_car (movement_control_txd_queue)
     while True:
         update_obu_list(obu_list)
         msg_rxd = my_system_rxd_queue.get()
         if (msg_rxd['msg_type'] == 'CA'):
             if node_type == "RSU":
                 for obu in msg_rxd['info']:
-                    obu_info = (msg_rxd['node'], obu['x'], obu['y'], obu['t'], node, obu[route], int(time.time()) + 10)
+                    obu_info = (msg_rxd['node'], obu['x'], obu['y'], obu['t'], node, obu['route'], int(time.time()) + 10)
                     add_new_obu(obu_list, obu_info, node)
 
         if (msg_rxd['msg_type'] == 'DEN'):
@@ -272,7 +280,7 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
                 elif node_type == "OBU":
                     # OBU treating received DEN from RSU
                     event=msg_rxd['event']
-                    if event['bus_id'] == node:
+                    if event['node_id'] == node:
                         route = event['route']
                         my_system_txd_queue.put(car_ack_route_ch(msg_rxd))
 
