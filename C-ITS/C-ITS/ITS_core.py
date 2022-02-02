@@ -64,7 +64,7 @@ obd_2_interface = dict()
 ## MAIN-ITS_core
 ##################################################
 def main(argv):
-	global obd_2_interface, coordinates, obu_list
+	global obd_2_interface, coordinates, obu_list, route
 
 	##
 	# OBU list item format:
@@ -120,7 +120,7 @@ def main(argv):
 		#             my_system_rxd_queue: queue to send data to my_system that is relevant for business logic decision-process 
 		# 			  ca_service_txd_queue: queue to send data to ca_services_txd
 		#             den_service_txd_queue: queue to send data to den_services_txd
-		t=Thread(target=application_txd, args=(node_id, start_flag, my_system_rxd_queue, ca_service_txd_queue, den_service_txd_queue, my_system_txd_queue, obu_list,))
+		t=Thread(target=application_txd, args=(node_id, node_type, start_flag, my_system_rxd_queue, ca_service_txd_queue, den_service_txd_queue, my_system_txd_queue, obu_list,))
 		t.start()
 		threads.append(t)
 	
@@ -138,7 +138,7 @@ def main(argv):
 		# Arguments - my_system_rxd_queue: queue to receive data from other application layer threads relevant for business logic decision-process 
 		#           - movement_control_txd_queue: queue to send commands to control vehicles movement
 		#			- my_system_txd_queue: queue to send data to other application layer threads
-		t=Thread(target=my_system, args=(node_id, start_flag, coordinates, obd_2_interface, my_system_rxd_queue, movement_control_txd_queue, my_system_txd_queue))
+		t=Thread(target=my_system, args=(node_id, node_type, start_flag, coordinates, obd_2_interface, my_system_rxd_queue, movement_control_txd_queue, my_system_txd_queue, obu_list,route,))
 		t.start()
 		threads.append(t)
 	
@@ -151,7 +151,7 @@ def main(argv):
 		# Arguments - coordinates: last known coordinates
 		#             ca_services_txd_queue: queue to get data from application_txd
 		#             geonetwork_txd_queue: queue to send data to geonetwork_txd
-		t=Thread(target=ca_service_txd, args=(node_id, node_type, start_flag, coordinates, obd_2_interface, ca_service_txd_queue, geonetwork_txd_queue,))
+		t=Thread(target=ca_service_txd, args=(node_id, node_type, start_flag, coordinates, obd_2_interface, ca_service_txd_queue, geonetwork_txd_queue,obu_list,route,))
 		t.start()
 		threads.append(t)
 

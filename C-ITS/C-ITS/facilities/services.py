@@ -15,12 +15,13 @@ from rsu_legacy_systems.rsu_control import *
 #                    - obd_2_interface: vehicle's dynamic information (speed, direction and heading).
 #-------------------------------------------------------------------------------------------------
 
-def create_ca_message(node, node_type, msg_id,coordinates, obd_2_interface, obu_list):
+def create_ca_message(node, node_type, msg_id,coordinates, obd_2_interface, obu_list, route):
 	
 	if node_type == "OBU":
 		x,y,t = position_read(coordinates)
 		s,d,h = get_vehicle_info(obd_2_interface)
-		ca_msg= {'msg_type':'CA', 'node':node, 'msg_id':msg_id,'pos_x': x,'pos_y': y,'time':t,'speed': s, 'dir':d, 'heading':h, }
+		obu_info = {'x':x,'y':y,'t':t,'route':route}
+		ca_msg= {'msg_type':'CA', 'node':node,'node_type':node_type,'msg_id':msg_id,'info':obu_info}
 	elif node_type == "RSU":
 		ca_msg = {'msg_type':'CA', 'node':node, 'node_type':node_type, 'msg_id':msg_id, 'obu_list':obu_list}
 	return ca_msg

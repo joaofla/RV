@@ -212,7 +212,7 @@ def verify_area(list_Bus, new_client_destin, new_client_pos):
 # 				Do not forget to this also at IST_core.py
 # -----------------------------------------------------------------------------------------
 def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_system_rxd_queue,
-              movement_control_txd_queue, my_system_txd_queue, obu_list):
+              movement_control_txd_queue, my_system_txd_queue, obu_list, route):
     # TODO input test data
     # TODO de acordo se é OBU e RSU
 
@@ -225,7 +225,6 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
 
     # OBU
     id_OBU = 0
-    route = []
     pos_ini = (0, 0)
     capacity = 2
     passengers = 1
@@ -251,7 +250,8 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
         if (msg_rxd['msg_type'] == 'CA'):
             if node_type == "RSU":
                 for obu in msg_rxd['info']:
-                    add_new_obu(obu_list, obu, node)
+                    obu_info = (msg_rxd['node'], obu['x'], obu['y'], obu['t'], node, obu[route], int(time.time()) + 10)
+                    add_new_obu(obu_list, obu_info, node)
 
         if (msg_rxd['msg_type'] == 'DEN'):
             if msg_rxd['node_type'] == node_type:
