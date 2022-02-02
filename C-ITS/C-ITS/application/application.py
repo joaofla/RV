@@ -42,14 +42,12 @@ def application_txd(node, node_type, start_flag, my_system_rxd_queue, ca_service
             den_user_data = trigger_event(node)
             print('STATUS: Message from user - THREAD: application_txd - NODE: {}'.format(node),
                   ' - MSG: {}'.format(den_user_data), '\n')
-            # TODO: add route calculation here - origem destino tempoEmSegundos - bus route newEstimate
-            # TODO: it returns 0,[],0 if it does not find any
             bus_id,new_route,estimate = choose_bus(obu_list, (den_user_data['event_src_x'],den_user_data['event_src_y']),
                        (den_user_data['event_dest_x'],den_user_data['event_dest_y']),
                        den_user_data['event_arrival_max_secs'])
-            # TODO: this function should be used for something
+            event = {'node_id':bus_id, 'route':new_route, 'estimate': estimate}
 
-            den_service_txd_queue.put(den_user_data)
+            den_service_txd_queue.put(event)
         else:
             den_service_txd_queue.put(my_system_txd_queue.get())
 
@@ -261,15 +259,17 @@ def my_system(node, node_type, start_flag, coordinates, obd_2_interface, my_syst
             else:
                 if node_type == "RSU":
                     # RSU treating received DEN from OBU
-                    if msg_rxd['status'] == 'Success':
-                        print('Bus will pick you up')
-                        # TODO estimativa de tempo
-                    else:
-                        print('No available bus. Please try again.')
+                    if msg_rxd['dest_rsu'] == node:
+                        if msg_rxd['status'] == 'Success':
+                            print('Bus will pick you up')
+                            # TODO estimativa de tempo
+                        else:
+                            print('No available bus. Please try again.')
                 elif node_type == "OBU":
                     # OBU treating received DEN from RSU
-                    if msg_rxd['obu_id'] == node:
-                        route = msg_rxd['route']
+                    event=msg_rxd['event']
+                    if event['bus_id'] == node:
+                        route = event['route']
                         my_system_txd_queue.put(car_ack_route_ch(msg_rxd))
 
     return
