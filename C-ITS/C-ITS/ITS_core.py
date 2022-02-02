@@ -93,6 +93,7 @@ def main(argv):
 		coordinates = {'x':int(argv[2]), 'y':int(argv[3]), 't': repr(time.time())}
 		obd_2_interface = {'speed': int(argv[4]), 'direction': argv[5], 'heading': argv[6], 'status': "0"}
 		obu_list = []
+		route = []
 		node_type = "RSU" if args.RSU == 1 else "OBU"
 		if args.RSU == 1:
 			# RSU

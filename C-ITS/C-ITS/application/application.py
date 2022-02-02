@@ -124,17 +124,18 @@ def choose_bus(list_Bus, new_client_src, new_client_destin, time_request):
     multiplier, stop_time = 1.6, 20
 
     # verifies if the destiny is inside the area of the route
-    list_possible_bus = (list_Bus, new_client_destin, new_client_src)
-
+    list_possible_bus = verify_area(list_Bus, new_client_destin, new_client_src)
+    print(list_possible_bus)
     # verify if the route direction is the same as the client
     new_list = verify_direction(list_possible_bus, new_client_destin, new_client_src)
     #TODO verify capacity
 
     # verify time constraints steal apply
     # create new route to be sent
-    new_route = route_calculation(new_list[0]['route'], new_client_src, new_client_destin)
-    client_route = create_client_route(new_client_destin, new_client_src, new_route)
-    total_time, margin = time_estimate(client_route, stop_time, multiplier)#time estimate for client route
+    if len(new_list)>0:
+        new_route = route_calculation(new_list[0]['route'], new_client_src, new_client_destin)
+        client_route = create_client_route(new_client_destin, new_client_src, new_route)
+        total_time, margin = time_estimate(client_route, stop_time, multiplier)#time estimate for client route
     if (total_time+margin) > time_request:
         return 0,[],0
     else:
@@ -158,13 +159,14 @@ def create_client_route(new_client_destin, new_client_src, new_route):
 
 def verify_direction(list_possible_bus, new_client_destin, new_client_pos):
     new_list = []
-    for i in range(0, len(list_possible_bus) - 1):
+
+    for i in range(0, len(list_possible_bus)):
         len1 = len(list_possible_bus[i]['route'])
         bus_vector = (list_possible_bus[i]['route'][len1 - 1][0] - list_possible_bus[i]['route'][0][0],
                       list_possible_bus[i]['route'][len1 - 1][1] - list_possible_bus[i]['route'][0][1])
 
         client_vector = (new_client_destin[0] - new_client_pos[0],
-                         new_client_destin[1] - new_client_pos)
+                         new_client_destin[1] - new_client_pos[1])
 
         if bus_vector[0] * client_vector[0] > 0 and bus_vector[1] * client_vector[1] > 0:
             new_list.append(list_possible_bus[i])
@@ -194,7 +196,7 @@ def verify_area(list_Bus, new_client_destin, new_client_pos):
                 if new_client_pos[0] <= maxX and new_client_pos[0] >= minX:
                     if new_client_pos[1] <= maxY and new_client_pos[1] >= minY:
                         list_possible_bus.append(list_Bus[i])
-        return list_possible_bus
+    return list_possible_bus
 
 
 # -----------------------------------------------------------------------------------------
